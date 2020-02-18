@@ -1,8 +1,8 @@
 'use strict';
 
 const supergoose = require('@code-fellows/supergoose');
-const server = require('../server.js');
-const agent = supergoose(server.authServer);
+const server = require('../../api/server.js');
+const agent = supergoose(server.apiServer);
 const Users = require('../models/users.js');
 const base64 = require('base-64');
 
@@ -38,13 +38,13 @@ describe('auth server routes', () => {
     const user1 = new Users(signinObj);
     await user1.save();
 
-    const autHeader = base64.encode(
+    const authHeader = base64.encode(
       `${signinObj.username}:${signinObj.password}`,
     );
 
     return agent
       .post('/signin')
-      .set('authorization', `Basic ${autHeader}`)
+      .set('authorization', `Basic ${authHeader}`)
       .then(response => {
         expect(!!response.text).toEqual(true);
         expect(response.statusCode).toBe(200);
@@ -57,13 +57,13 @@ describe('auth server routes', () => {
     await user1.save(signinObj);
     await user2.save(signinObj2);
 
-    const autHeader = base64.encode(
+    const authHeader = base64.encode(
       `${signinObj.username}:${signinObj.password}`,
     );
 
     return agent
       .get('/users')
-      .set('authorization', `Basic ${autHeader}`)
+      .set('authorization', `Basic ${authHeader}`)
       .then(response => {
         expect(response.statusCode).toEqual(200);
         expect(response.body.count).toEqual(2);

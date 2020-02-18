@@ -14,10 +14,4 @@ router.use(basicAuthRoutes);
 router.use(oauthAuthRoutes);
 router.use(bearerAuthRoutes);
 
-// module.exports = {
-//   authServer: app,
-//   start: port =>
-//     app.listen(port, () => console.log(`listening on port ${port}`)),
-// };
-
 module.exports = router;

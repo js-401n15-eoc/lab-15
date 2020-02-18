@@ -1,7 +1,7 @@
 'use strict';
 
 const supergoose = require('@code-fellows/supergoose');
-const server = require('../server.js');
+const server = require('../../api/server.js');
 const agent = supergoose(server);
 const Users = require('../models/users.js');
 const base64 = require('base-64');

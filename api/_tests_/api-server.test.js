@@ -15,10 +15,10 @@ describe('bad API routes', () => {
 
   const superuserSetup = async () => {
     await agent.post('/signup').send(superUserObj);
-    const autHeader = base64.encode(
+    const authHeader = base64.encode(
       `${superUserObj.username}:${superUserObj.password}`,
     );
-    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+    await agent.post('/signin').set('authorization', `Basic ${authHeader}`);
   };
 
   beforeEach(async () => {
@@ -80,10 +80,10 @@ describe('API routes for categories', () => {
 
   const superuserSetup = async () => {
     await agent.post('/signup').send(superUserObj);
-    const autHeader = base64.encode(
+    const authHeader = base64.encode(
       `${superUserObj.username}:${superUserObj.password}`,
     );
-    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+    await agent.post('/signin').set('authorization', `Basic ${authHeader}`);
   };
 
   beforeEach(async () => {
@@ -218,10 +218,10 @@ describe('API routes for products', () => {
   let dummyToken;
   const superuserSetup = async () => {
     await agent.post('/signup').send(superUserObj);
-    const autHeader = base64.encode(
+    const authHeader = base64.encode(
       `${superUserObj.username}:${superUserObj.password}`,
     );
-    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+    await agent.post('/signin').set('authorization', `Basic ${authHeader}`);
   };
 
   beforeEach(async () => {
