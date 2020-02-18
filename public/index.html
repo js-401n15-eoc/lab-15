@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Login with GitHub</title>
+  </head>
+
+  <body>
+    <a id="oauth" href="#">Login With GitHub</a>
+  </body>
+
+  <script>
+    let URL = 'http://github.com/login/oauth/authorize';
+    let options = {
+      client_id: '7bc8053f397b1480a890',
+      redirect_uri: 'http://localhost:3000/oauth',
+      scope: 'read:user',
+      state: '401appconsent',
+    };
+
+    let QueryString = Object.keys(options)
+      .map(key => {
+        return `${key}=` + encodeURIComponent(options[key]);
+      })
+      .join('&');
+
+    let authURL = `${URL}?${QueryString}`;
+
+    let link = document.getElementById('oauth');
+    link.setAttribute('href', authURL);
+  </script>
+</html>
