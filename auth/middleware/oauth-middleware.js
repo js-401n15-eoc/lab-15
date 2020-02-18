@@ -34,39 +34,54 @@ module.exports = async (req, res, next) => {
 };
 
 async function exchangeCodeForToken(code) {
-  let tokenServerResponse = await superagent.post(tokenServerURL).send({
-    code: code,
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    redirect_uri: API_SERVER,
-    grant_type: 'authorization_code',
-  });
+  try {
+    let tokenServerResponse = await superagent.post(tokenServerURL).send({
+      code: code,
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      redirect_uri: API_SERVER,
+      grant_type: 'authorization_code',
+    });
+    return tokenServerResponse.body.access_token;
+  } 
+  catch (err) {
+    console.error('Exchange code for token failed: ', err.message);
+  }
 
-  return tokenServerResponse.body.access_token;
 }
 
 async function getRemoteUser(token) {
-  let userResponse = await superagent
-    .get(remoteAPI)
-    .set('user-agent', 'express-app')
-    .set('Authorization', `token ${token}`);
-
-  return userResponse.body;
+  try {
+    let userResponse = await superagent
+      .get(remoteAPI)
+      .set('user-agent', 'express-app')
+      .set('Authorization', `token ${token}`);
+  
+    return userResponse.body;
+  }
+  catch (err) {
+    console.error('Get remote user failed: ', err.message);
+  }
 }
 
 async function getOurUser(username) {
-  let record = {
-    username: username,
-    password: 'dummypwfordogswhohavefleas',
-  };
-
-  let user = await Users.findOne({ username });
-  if (!user) {
-    user = new Users(record);
-    await user.save();
+  try {
+    let record = {
+      username: username,
+      password: 'dummypwfordogswhohavefleas',
+    };
+  
+    let user = await Users.findOne({ username });
+    if (!user) {
+      user = new Users(record);
+      await user.save();
+    }
+  
+    let token = user.generateToken();
+  
+    return [user, token];
   }
-
-  let token = user.generateToken();
-
-  return [user, token];
+  catch (err) {
+    console.error('Get our user failed: ', err.message);
+  }
 }
