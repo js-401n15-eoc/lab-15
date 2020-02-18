@@ -3,7 +3,6 @@
 const supergoose = require('@code-fellows/supergoose');
 const server = require('../../api/server.js');
 const agent = supergoose(server.apiServer);
-const Users = require('../models/users.js');
 const base64 = require('base-64');
 
 describe('bearer auth routes', () => {
