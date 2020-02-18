@@ -5,10 +5,22 @@ const server = require('../server.js');
 const agent = supergoose(server.apiServer);
 const categories = require('../models/categories/categories-collection.js');
 const products = require('../models/products/products-collection.js');
+const base64 = require('base-64');
 
 describe('bad API routes', () => {
   let badObj;
   let goodObj;
+  let superUserObj;
+  let dummyToken;
+
+  const superuserSetup = async () => {
+    await agent.post('/signup').send(superUserObj);
+    const autHeader = base64.encode(
+      `${superUserObj.username}:${superUserObj.password}`,
+    );
+    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+  };
+
   beforeEach(async () => {
     goodObj = {
       name: 'mythical_weapons',
@@ -21,12 +33,24 @@ describe('bad API routes', () => {
       description: 'gonna FAAAAAAAAIL!',
       badProp: 'should not have this',
     };
+
+    superUserObj = {
+      username: 'bob',
+      password: 'saget',
+      role: 'godEmperor',
+    };
+
+    dummyToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvYiIsImlhdCI6MTU4MjAwNjY4NH0.JCrt5ATPQ577dUcrQ-wYTQzQAvLNplIF9a0ZFIqPCUY';
+
     await categories.schema.deleteMany({}).exec();
+    await superuserSetup();
   });
 
   it('can return a 500 on a failed post', () => {
     return agent
       .post('/api/v1/categories')
+      .set('authorization', `bearer ${dummyToken}`)
       .send(badObj)
       .then(response => expect(response.statusCode).toBe(500))
       .catch(error => expect(error).not.toBeDefined());
@@ -35,10 +59,12 @@ describe('bad API routes', () => {
   it('can return a 500 on a failed update', () => {
     return agent
       .post(`/api/v1/categories`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(goodObj)
       .then(() =>
         agent
           .put(`/api/v1/categories/-12345`)
+          .set('authorization', `bearer ${dummyToken}`)
           .send(badObj)
           .then(response => expect(response.statusCode).toBe(500)),
       )
@@ -49,6 +75,16 @@ describe('bad API routes', () => {
 describe('API routes for categories', () => {
   let testObj1;
   let testObj2;
+  let superUserObj;
+  let dummyToken;
+
+  const superuserSetup = async () => {
+    await agent.post('/signup').send(superUserObj);
+    const autHeader = base64.encode(
+      `${superUserObj.username}:${superUserObj.password}`,
+    );
+    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+  };
 
   beforeEach(async () => {
     testObj1 = {
@@ -63,12 +99,23 @@ describe('API routes for categories', () => {
       description: 'stuff fo yo crib!',
     };
 
+    superUserObj = {
+      username: 'bob',
+      password: 'saget',
+      role: 'godEmperor',
+    };
+
+    dummyToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvYiIsImlhdCI6MTU4MjAwNjY4NH0.JCrt5ATPQ577dUcrQ-wYTQzQAvLNplIF9a0ZFIqPCUY';
+
     await categories.schema.deleteMany({}).exec();
+    await superuserSetup();
   });
 
-  it('can post a category', () => {
+  it('can post a category', async () => {
     return agent
       .post('/api/v1/categories')
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(response => {
         expect(response.statusCode).toBe(201);
@@ -87,6 +134,7 @@ describe('API routes for categories', () => {
 
     return agent
       .get('/api/v1/categories')
+      .set('authorization', `bearer ${dummyToken}`)
       .then(response => {
         expect(response.statusCode).toBe(200);
         expect(response.body.count).toBe(2);
@@ -104,14 +152,18 @@ describe('API routes for categories', () => {
   it('can get one category', () => {
     return agent
       .post(`/api/v1/categories/`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
-        agent.get(`/api/v1/categories/${createRes.body._id}`).then(response => {
-          expect(response.statusCode).toBe(200);
-          Object.keys(testObj1).forEach(key => {
-            expect(testObj1[key]).toEqual(response.body[key]);
-          });
-        }),
+        agent
+          .get(`/api/v1/categories/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
+          .then(response => {
+            expect(response.statusCode).toBe(200);
+            Object.keys(testObj1).forEach(key => {
+              expect(testObj1[key]).toEqual(response.body[key]);
+            });
+          }),
       )
       .catch(error => expect(error).not.toBeDefined());
   });
@@ -125,10 +177,12 @@ describe('API routes for categories', () => {
 
     return agent
       .post(`/api/v1/categories/`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
         agent
           .put(`/api/v1/categories/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
           .send(editObj)
           .then(response => {
             expect(response.statusCode).toBe(200);
@@ -143,10 +197,12 @@ describe('API routes for categories', () => {
   it('can delete a category', () => {
     return agent
       .post(`/api/v1/categories/`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
         agent
           .delete(`/api/v1/categories/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
           .then(response => {
             expect(response.statusCode).toBe(204);
           }),
@@ -158,6 +214,15 @@ describe('API routes for categories', () => {
 describe('API routes for products', () => {
   let testObj1;
   let testObj2;
+  let superUserObj;
+  let dummyToken;
+  const superuserSetup = async () => {
+    await agent.post('/signup').send(superUserObj);
+    const autHeader = base64.encode(
+      `${superUserObj.username}:${superUserObj.password}`,
+    );
+    await agent.post('/signin').set('authorization', `Basic ${autHeader}`);
+  };
 
   beforeEach(async () => {
     testObj1 = {
@@ -174,12 +239,23 @@ describe('API routes for products', () => {
       quantity_in_stock: 111,
     };
 
+    superUserObj = {
+      username: 'bob',
+      password: 'saget',
+      role: 'godEmperor',
+    };
+
+    dummyToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImJvYiIsImlhdCI6MTU4MjAwNjY4NH0.JCrt5ATPQ577dUcrQ-wYTQzQAvLNplIF9a0ZFIqPCUY';
+
     await products.schema.deleteMany({}).exec();
+    await superuserSetup();
   });
 
   it('can post a product', () => {
     return agent
       .post('/api/v1/products')
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(response => {
         expect(response.statusCode).toBe(201);
@@ -198,6 +274,7 @@ describe('API routes for products', () => {
 
     return agent
       .get('/api/v1/products')
+      .set('authorization', `bearer ${dummyToken}`)
       .then(response => {
         expect(response.statusCode).toBe(200);
         expect(response.body.count).toBe(2);
@@ -215,14 +292,18 @@ describe('API routes for products', () => {
   it('can get one product', () => {
     return agent
       .post(`/api/v1/products`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
-        agent.get(`/api/v1/products/${createRes.body._id}`).then(response => {
-          expect(response.statusCode).toBe(200);
-          Object.keys(testObj1).forEach(key => {
-            expect(testObj1[key]).toEqual(response.body[key]);
-          });
-        }),
+        agent
+          .get(`/api/v1/products/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
+          .then(response => {
+            expect(response.statusCode).toBe(200);
+            Object.keys(testObj1).forEach(key => {
+              expect(testObj1[key]).toEqual(response.body[key]);
+            });
+          }),
       )
       .catch(error => expect(error).not.toBeDefined());
   });
@@ -237,10 +318,12 @@ describe('API routes for products', () => {
 
     return agent
       .post(`/api/v1/products`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
         agent
           .put(`/api/v1/products/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
           .send(editObj)
           .then(response => {
             expect(response.statusCode).toBe(200);
@@ -255,10 +338,12 @@ describe('API routes for products', () => {
   it('can delete a product', () => {
     return agent
       .post(`/api/v1/products`)
+      .set('authorization', `bearer ${dummyToken}`)
       .send(testObj1)
       .then(createRes =>
         agent
           .delete(`/api/v1/products/${createRes.body._id}`)
+          .set('authorization', `bearer ${dummyToken}`)
           .then(response => {
             expect(response.statusCode).toBe(204);
           }),

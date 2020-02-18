@@ -18,7 +18,7 @@ describe('Auth Middleware', () => {
   it('allows a user to authenticate on github through oauth', () => {
     let req = {
       query: {
-        code: 'beepboop12345',
+        code: '8ed12f5b4c6ffc167482',
       },
     };
     let res = {};

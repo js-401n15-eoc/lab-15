@@ -10,6 +10,8 @@ const notFoundHandler = require('./middleware/404.js');
 const errorHandler = require('./middleware/500.js');
 
 const apiRoutes = require('./routes/api.js');
+const authRoutes = require('../auth/routes.js');
+
 const timestamp = require('./middleware/timestamp.js');
 const logger = require('./middleware/logger.js');
 
@@ -23,7 +25,10 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(timestamp);
 app.use(logger);
+
+// routes
 app.use('/api/v1', apiRoutes);
+app.use(authRoutes);
 
 // error handling (unsupported routes)
 app.use('*', notFoundHandler);

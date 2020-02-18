@@ -12,6 +12,7 @@
 #### Documentation
 
 - [MongoDB docs (MongoDB CRUD Operations)](https://docs.mongodb.com/manual/crud/)
+- [jsonwebtoken](https://www.npmjs.com/package/jsonwebtoken)
 
 ### Setup
 

@@ -14,11 +14,13 @@ describe('auth server routes', () => {
     signinObj = {
       username: 'john',
       password: 'blue',
+      role: 'guest',
     };
 
     signinObj2 = {
       username: 'bob',
       password: 'saget',
+      role: 'godEmperor',
     };
     await Users.deleteMany({}).exec();
   });
@@ -81,13 +83,4 @@ describe('auth server routes', () => {
       expect(response.body).toEqual({});
     });
   });
-
-  // it('can allow someone to sign in with oauth', async () => {
-  //   const user1 = new Users(signinObj);
-  //   await user1.save(signinObj);
-
-  //   return agent.get('/oauth').then(response => {
-  //     console.log('Do we have a body?', response.body);
-  //   });
-  // });
 });
