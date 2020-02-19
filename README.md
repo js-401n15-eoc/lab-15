@@ -36,4 +36,4 @@ REDIRECT_URI=http://localhost:3000/oauth
 
 #### UML
 
-![UML Image](lab-15-UML.png 'uml diagram')
+![UML Image](lab-15-UML.png "uml diagram")
