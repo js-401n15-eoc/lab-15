@@ -18,12 +18,12 @@ const Users = mongoose.Schema({
 });
 
 // mongo pre-save
-Users.pre('save', async function() {
+Users.pre('save', async function () {
   this.password = await bcrypt.hash(this.password, 5);
 });
 
 // anything.statics.whatever === static or class method
-Users.statics.authenticateBasic = async function(username, password) {
+Users.statics.authenticateBasic = async function (username, password) {
   try {
     let query = { username };
     let user = await this.findOne(query);
@@ -43,7 +43,7 @@ Users.statics.authenticateBasic = async function(username, password) {
 };
 
 // anything.methods.whatever === instance method
-Users.methods.generateToken = function() {
+Users.methods.generateToken = function () {
   // Use the user stuff (this) to make a token.
   let userObject = {
     username: this.username,
@@ -51,7 +51,7 @@ Users.methods.generateToken = function() {
   return jwt.sign(userObject, secret);
 };
 
-Users.statics.authenticateWithToken = async function(token) {
+Users.statics.authenticateWithToken = async function (token) {
   try {
     let tokenObject = jwt.verify(token, secret);
     let user = await this.findOne({ username: tokenObject.username });
@@ -61,9 +61,7 @@ Users.statics.authenticateWithToken = async function(token) {
   }
 };
 
-Users.virtual('accesses', acl[this.role]);
-
-Users.methods.can = function(task) {
+Users.methods.can = function (task) {
   return acl.schema.obj[this.role].includes(task);
 };
 
